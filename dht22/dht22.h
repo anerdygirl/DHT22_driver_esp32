@@ -1,21 +1,17 @@
 // need to download Adafruit DHT library first
-#include <DHT.h>
+#include "DHT.h"
 
-#define DHTTYPE DHT22 
+#define DHTTYPE DHT22
+
+// create an instance of your sensor outside the setup and loop functions of your program: DHT dht(DHTPIN, DHT22);
+// also define a dht pin to use: e.g #define DHTPIN 27
+
+DHT dht(27, DHT22);
 
 // init sensor
 void beginDHT() {
   dht.begin();
-}
-
-// create an instance of your sensor in the setup function of your program: DHT dht(DHTPIN, DHT22);
-
-// creates a sensor event to read data
-sensors_event_t event;
-
-// set up sensor pin
-void setupDHT22(uint8 pin) {
-  pinMode(pin, INPUT);
+  return;
 }
 
 // read humidity
@@ -27,23 +23,22 @@ float readHumidity() {
 // read temperature
 float readTemperature(char x) {
   // temperature read in °C
-  float c = dht.readTemperature();
-  // temperature read in °F
-  float f = dht.readTemperature(true);
-  // returns temperature according to unit selected
-  if (toupper(x) == 'C') { //unit is Celcius
-      return c;
-  } else if (toupper(x) == 'F') { //unit is Fahrenheit
-      return f;
-  } else {
-      Serial.println("Undefined unit...");
-      return -1;
+  float temp = dht.readTemperature();
+  if (toupper(x) == 'F') {
+    temp = temp * 9 / 5 + 32;  // Convert to Fahrenheit
   }
+  else if (toupper(x) != 'C') {
+    Serial.println("Undefined unit...");
+    return -1;
+  }
+   return temp;
 }
+
 
 // error handling
 void exceptionDHT() {
   if (isnan(dht.readTemperature()) || isnan(dht.readTemperature(true)) || isnan(dht.readHumidity())) {
     Serial.println(F("Failed to read from DHT sensor!"));
     return;
+  }
 }
